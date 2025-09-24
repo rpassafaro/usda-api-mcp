@@ -30,18 +30,17 @@ open "dist/USDA Food Tools Installer.app"
 ### 3. Commit and Tag
 ```bash
 git add .
-git commit -m "Release v1.1.0"
-git tag v1.1.0
+git commit -m "Release v2.0.0"
+git tag v2.0.0
 git push origin main
-git push origin v1.1.0
+git push origin v2.0.0
 ```
 
 ### 4. Create GitHub Release
 1. Go to GitHub repository → Releases → "Create a new release"
-2. Choose tag: `v1.1.0`
-3. Release title: `USDA Food Tools v1.1.0`
-4. **IMPORTANT**: Uncheck "Include source code (zip)" and "Include source code (tar.gz)"
-5. Description:
+2. **Tag**: Create new tag `v2.0.0` on publish
+3. **Release title**: `USDA Food Tools v2.0.0`
+4. **Description**:
 ```markdown
 ## 🍎 USDA Food Tools for Claude
 
@@ -73,14 +72,22 @@ Add powerful food and nutrition data to Claude for Desktop!
 - Free USDA API key (link above)
 
 **For developers**: See the main repository for source code and development setup.
+
+📝 **Note**: GitHub will automatically include source code archives. Users should download the installer files below instead.
 ```
 
-6. Attach files:
-   - `USDA-Food-Tools-Installer.zip` (from `dist/`) - **Primary installer**
-   - `install.sh` (command-line installer) - **Alternative installer**
+5. **Attach files** (drag from `release-v2.0.0/` folder):
+   - `USDA-Food-Tools-Installer.zip` - **Primary installer (recommended)**
+   - `install.sh` - **Command-line installer**
+   - `README.txt` - **Simple instructions**
 
-7. Check "Set as the latest release"
-8. Click "Publish release"
+6. Check "Set as the latest release"
+7. Click "Publish release"
+
+8. **Post-release**: Add a note at the top of the release description:
+```markdown
+> 💡 **For users**: Download `USDA-Food-Tools-Installer.zip` below (not the source code archives)
+```
 
 ### 5. Update README Links
 After release is published, update README.md download links to point to:

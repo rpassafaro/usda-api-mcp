@@ -7,7 +7,7 @@ Add powerful food and nutrition data to Claude for Desktop using the USDA's comp
 ### Option 1: GUI Installer (Recommended)
 1. **Download**: [`USDA Food Tools Installer.zip`](https://github.com/rpassafaro/usda-api-mcp/releases/latest) (11KB)
 2. **Extract** and double-click the app
-3. **Get API Key**: Free at [api.nal.usda.gov](https://api.nal.usda.gov/signup)
+3. **Get API Key**: Free at [api.nal.usda.gov](https://fdc.nal.usda.gov/api-key-signup)
 4. **Follow the installer** - opens in your browser
 5. **Restart Claude** - tools appear automatically!
 

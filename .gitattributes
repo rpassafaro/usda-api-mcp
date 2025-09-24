@@ -1,0 +1,19 @@
+# Ensure clean releases - exclude development files from release archives
+.gitignore export-ignore
+.gitattributes export-ignore
+RELEASE.md export-ignore
+CHANGELOG.md export-ignore
+create_app.sh export-ignore
+pyproject.toml export-ignore
+main.py export-ignore
+gui_installer.py export-ignore
+build/ export-ignore
+__pycache__/ export-ignore
+*.pyc export-ignore
+.env export-ignore
+.python-version export-ignore
+
+# Include only essential files in releases
+README.md export
+install.sh export
+dist/ export

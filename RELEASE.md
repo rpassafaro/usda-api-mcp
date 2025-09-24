@@ -30,17 +30,18 @@ open "dist/USDA Food Tools Installer.app"
 ### 3. Commit and Tag
 ```bash
 git add .
-git commit -m "Release v1.0.0"
-git tag v1.0.0
+git commit -m "Release v1.1.0"
+git tag v1.1.0
 git push origin main
-git push origin v1.0.0
+git push origin v1.1.0
 ```
 
 ### 4. Create GitHub Release
 1. Go to GitHub repository → Releases → "Create a new release"
-2. Choose tag: `v1.0.0`
-3. Release title: `USDA Food Tools v1.0.0`
-4. Description:
+2. Choose tag: `v1.1.0`
+3. Release title: `USDA Food Tools v1.1.0`
+4. **IMPORTANT**: Uncheck "Include source code (zip)" and "Include source code (tar.gz)"
+5. Description:
 ```markdown
 ## 🍎 USDA Food Tools for Claude
 
@@ -49,7 +50,7 @@ Add powerful food and nutrition data to Claude for Desktop!
 ### 🚀 Quick Install
 1. Download `USDA-Food-Tools-Installer.zip` below
 2. Extract and double-click the app
-3. Get free API key at [api.nal.usda.gov](https://api.nal.usda.gov/signup)
+3. Get free API key at [fdc.nal.usda.gov/api-key-signup](https://fdc.nal.usda.gov/api-key-signup)
 4. Follow the installer (opens in browser)
 5. Restart Claude - tools appear automatically!
 
@@ -66,16 +67,20 @@ Add powerful food and nutrition data to Claude for Desktop!
 - Bulk lookups for multiple foods
 - Research-quality data
 
-**Full Changelog**: https://github.com/yourusername/usda-api-mcp/compare/v0.9.0...v1.0.0
+### 📋 Requirements
+- Claude for Desktop (latest version)
+- macOS 10.15+ (for GUI installer)
+- Free USDA API key (link above)
+
+**For developers**: See the main repository for source code and development setup.
 ```
 
-5. Attach files:
-   - `USDA-Food-Tools-Installer.zip` (from `dist/`)
-   - `install.sh` (command-line installer)
-   - `gui_installer.py` (Python script installer)
+6. Attach files:
+   - `USDA-Food-Tools-Installer.zip` (from `dist/`) - **Primary installer**
+   - `install.sh` (command-line installer) - **Alternative installer**
 
-6. Check "Set as the latest release"
-7. Click "Publish release"
+7. Check "Set as the latest release"
+8. Click "Publish release"
 
 ### 5. Update README Links
 After release is published, update README.md download links to point to:

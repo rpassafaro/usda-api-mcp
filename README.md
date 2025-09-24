@@ -127,7 +127,3 @@ The project uses a simple Mac app bundle approach:
 - Shell script launcher with embedded Python
 - Self-contained with port conflict resolution
 - Automatic cleanup of existing processes
-
----
-
-**Questions?** Open an [issue](../../issues) or check the [User Guide](USER_GUIDE.md).

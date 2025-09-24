@@ -1,79 +1,133 @@
-# USDA Food & Nutrition Tools for Claude
+# 🍎 USDA Food Tools for Claude
 
-Get instant access to food and nutrition data in Claude for Desktop! 🍎📊
+Add powerful food and nutrition data to Claude for Desktop using the USDA's comprehensive food database.
 
-## What This Does
+## 🚀 For Users - Quick Install
 
-Adds 5 powerful food tools to Claude:
-- 🔍 **Search 500,000+ foods** from the USDA database
-- 📊 **Get nutrition facts** for any food
-- 🍎 **Compare foods** side-by-side
-- 🧪 **Analyze nutrients** in detail  
-- 📋 **Browse food categories**
+### Option 1: GUI Installer (Recommended)
+1. **Download**: [`USDA Food Tools Installer.zip`](https://github.com/yourusername/usda-api-mcp/releases/latest/download/USDA-Food-Tools-Installer.zip) (11KB)
+2. **Extract** and double-click the app
+3. **Get API Key**: Free at [api.nal.usda.gov](https://api.nal.usda.gov/signup)
+4. **Follow the installer** - opens in your browser
+5. **Restart Claude** - tools appear automatically!
 
-## Super Easy Installation
+### Option 2: Command Line
+```bash
+curl -sSL https://raw.githubusercontent.com/yourusername/usda-api-mcp/main/install.sh | bash
+```
 
-### Step 1: Get Free API Key
-1. Go to: https://fdc.nal.usda.gov/api-guide.html
-2. Click "Get Data API Key"
-3. Fill out the form and save your key
+## 🔍 What You Get
 
-### Step 2: Install (Takes 2 minutes!)
-1. Download: [`install.sh`](./install.sh)
-2. Open Terminal
-3. Run:
-   ```bash
-   cd Downloads  # or wherever you saved it
-   chmod +x install.sh
-   ./install.sh
-   ```
-4. Enter your API key when asked
+- **Search Foods** - Find any food with detailed nutrition facts
+- **Nutrition Analysis** - Complete nutrient breakdowns  
+- **Brand Information** - Ingredients, categories, manufacturers
+- **Bulk Lookups** - Multiple foods at once
+- **Research Data** - USDA's gold-standard food database
 
-### Step 3: Restart Claude
-- Quit and restart Claude for Desktop completely
-- Look for the tools icon (🔧)
+## 📋 Requirements
 
-## Done! 🎉
+- Claude for Desktop (latest version)
+- Free USDA API key from [api.nal.usda.gov](https://api.nal.usda.gov/signup)
+- macOS 10.15+ (GUI installer) or Python 3.11+ (command line)
 
-Now ask Claude things like:
-- "What's the nutrition info for salmon?"
-- "Compare chicken breast vs tofu protein"
-- "Find high-fiber breakfast foods"
-- "Show vitamin content of spinach"
+## 💬 Example Usage
 
-## Installation Options
+Once installed, ask Claude:
+- *"What's the nutrition info for salmon?"*
+- *"Compare chicken breast vs tofu protein"*
+- *"Find high-fiber breakfast foods"*
+- *"Show vitamin content of spinach"*
 
-Choose what works best for you:
+---
 
-### 🖱️ **GUI Installer (Easiest)**
-- **Mac App**: Download [`USDA Food Tools Installer.zip`](dist/USDA%20Food%20Tools%20Installer.zip)
-- **Python Script**: Download [`gui_installer.py`](gui_installer.py)
-- Extract and double-click - beautiful interface guides you through everything
-- Perfect for non-technical users
+## 🛠️ For Developers
 
-### ⚡ **Command Line (Quick)**
-- Download: [`install.sh`](install.sh)
-- Run in Terminal: `./install.sh`
-- One command does everything automatically
+### Development Setup
 
-## Documentation
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/usda-api-mcp.git
+cd usda-api-mcp
 
-- 🖱️ **[GUI Installer Guide](GUI_README.md)** - Point-and-click installation (Mac app & Python script)
-- 📖 **[User Guide](USER_GUIDE.md)** - Detailed help, examples, and troubleshooting  
-- 🛠️ **[Developer Guide](DEVELOPER.md)** - Build, modify, and distribute
+# Install dependencies
+uv sync
 
-## Need Help?
+# Set up environment
+echo "USDA_API_KEY=your_key_here" > .env
 
-**Installation issues?** Check the [GUI Installer Guide](GUI_README.md) or [User Guide](USER_GUIDE.md) troubleshooting sections.
+# Run the MCP server
+uv run main.py
+```
 
-**Want to customize?** See the [Developer Guide](DEVELOPER.md) for building and modifying.
+### Project Structure
 
-**API questions?** Visit: https://fdc.nal.usda.gov/api-guide.html
+```
+usda-api-mcp/
+├── main.py              # MCP server implementation
+├── gui_installer.py     # Web-based GUI installer
+├── install.sh          # Command-line installer
+├── pyproject.toml      # Dependencies
+├── create_app.sh       # Build Mac app bundle
+└── dist/               # Distribution files
+```
 
-## Example Usage
+### Available MCP Tools
 
-Once installed, try asking Claude:
-- *"Search for nutrition information about salmon"*
-- *"Compare the protein content of chicken breast vs tofu"*  
-- *"Find foods high in iron"*
-- *"Get detailed nutrition facts for avocados"*
+- `search_foods(query, page_size, page_number)` - Search food database
+- `get_food_details(fdc_id, nutrients)` - Get detailed food information
+- `get_multiple_foods(fdc_ids, nutrients)` - Bulk food lookup
+- `list_foods(data_type, page_size, page_number)` - Browse foods
+- `get_food_nutrients(fdc_ids, nutrients)` - Get specific nutrients
+
+### Building Releases
+
+```bash
+# Build Mac app bundle
+./create_app.sh
+
+# Create distribution zip
+cd dist && zip -r "USDA-Food-Tools-Installer.zip" "USDA Food Tools Installer.app"
+
+# Test the app
+open "USDA Food Tools Installer.app"
+```
+
+### API Integration
+
+The server integrates with USDA FoodData Central API v2:
+- **Base URL**: `https://api.nal.usda.gov/fdc/v2/`
+- **Authentication**: API key in query parameters
+- **Rate Limits**: 3600 requests/hour (free tier)
+- **Data Types**: Foundation, SR Legacy, Survey, Branded foods
+
+### Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes and test thoroughly
+4. Submit a pull request
+
+### Testing
+
+```bash
+# Test MCP server directly
+uv run main.py
+
+# Test GUI installer
+python3 gui_installer.py
+
+# Test command-line installer
+./install.sh
+```
+
+### Deployment
+
+The project uses a simple Mac app bundle approach:
+- No complex packaging (py2app issues resolved)
+- Shell script launcher with embedded Python
+- Self-contained with port conflict resolution
+- Automatic cleanup of existing processes
+
+---
+
+**Questions?** Open an [issue](../../issues) or check the [User Guide](USER_GUIDE.md).

@@ -17,23 +17,28 @@ DATA_FILES = [
 ]
 
 OPTIONS = {
-    'argv_emulation': False,
+    'argv_emulation': True,  # Enable this for better compatibility
     'iconfile': None,  # We could add a custom icon here
     'plist': {
         'CFBundleName': 'USDA Food Tools Installer',
         'CFBundleDisplayName': 'USDA Food Tools Installer',
         'CFBundleGetInfoString': 'Install USDA Food and Nutrition Tools for Claude for Desktop',
         'CFBundleIdentifier': 'com.usdaapi.mcp.installer',
-        'CFBundleVersion': '1.0.0',
-        'CFBundleShortVersionString': '1.0.0',
+        'CFBundleVersion': '2.0.0',
+        'CFBundleShortVersionString': '2.0.0',
         'NSHighResolutionCapable': True,
         'NSRequiresAquaSystemAppearance': False,  # Support dark mode
     },
-    'packages': ['tkinter', 'requests'],
-    'includes': ['tkinter.ttk'],
-    'excludes': ['test', 'unittest', 'distutils'],
-    'strip': True,
-    'optimize': 2,
+    'packages': ['http', 'socketserver', 'webbrowser', 'threading', 'urllib', 'json', 'subprocess', 'pathlib'],
+    'includes': [
+        'http.server', 'socketserver', 'webbrowser', 'threading', 
+        'urllib.parse', 'pathlib', 'json', 'time', 'subprocess', 
+        'os', 'sys', 'shutil'
+    ],
+    'excludes': ['test', 'unittest', 'distutils', 'tkinter', 'email', 'xml'],
+    'site_packages': True,  # Include site-packages
+    'strip': False,  # Don't strip for debugging
+    'optimize': 0,  # No optimization for debugging
 }
 
 setup(
@@ -43,6 +48,6 @@ setup(
     options={'py2app': OPTIONS},
     setup_requires=['py2app'],
     install_requires=[
-        'requests>=2.25.0',
+        # No external dependencies needed for web installer
     ],
 )

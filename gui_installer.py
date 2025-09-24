@@ -1,208 +1,64 @@
 #!/usr/bin/env python3
 """
-Fixed USDA API MCP Server GUI Installer
-Simpler version without complex threading
+USDA API MCP Server Web-Based Installer
+Opens a beautiful web interface in your browser
 """
 
-import tkinter as tk
-from tkinter import ttk, messagebox
+import http.server
+import socketserver
+import webbrowser
+import threading
+import json
 import subprocess
 import os
 import sys
-import json
-import webbrowser
 from pathlib import Path
-import requests
+import urllib.parse
+import time
 
-class USDAInstallerGUI:
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.title("USDA Food Tools for Claude - Installer")
-        self.root.geometry("600x500")
-        self.root.resizable(False, False)
-        
-        # Ensure window is visible
-        self.root.lift()
-        self.root.attributes('-topmost', True)
-        self.root.after_idle(lambda: self.root.attributes('-topmost', False))
-        
-        # Variables
-        self.api_key = tk.StringVar()
-        self.install_dir = Path.home() / ".usda-api-mcp"
-        self.claude_config_dir = Path.home() / "Library/Application Support/Claude"
-        
-        self.setup_ui()
-        
-    def setup_ui(self):
-        # Main container
-        main_frame = ttk.Frame(self.root, padding="20")
-        main_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Header
-        header_frame = ttk.Frame(main_frame)
-        header_frame.pack(fill=tk.X, pady=(0, 20))
-        
-        title_label = ttk.Label(
-            header_frame, 
-            text="🍎 USDA Food Tools for Claude",
-            font=("Arial", 20, "bold")
-        )
-        title_label.pack()
-        
-        subtitle_label = ttk.Label(
-            header_frame,
-            text="Add powerful food and nutrition tools to Claude for Desktop",
-            font=("Arial", 12)
-        )
-        subtitle_label.pack(pady=(5, 0))
-        
-        # Features section
-        features_frame = ttk.LabelFrame(main_frame, text="What You'll Get", padding="10")
-        features_frame.pack(fill=tk.X, pady=(0, 20))
-        
-        features = [
-            "🔍 Search 500,000+ foods from USDA database",
-            "📊 Get complete nutrition facts for any food",
-            "🍎 Compare foods side-by-side",
-            "🧪 Analyze nutrients in detail",
-            "📋 Browse food categories"
-        ]
-        
-        for feature in features:
-            ttk.Label(features_frame, text=feature).pack(anchor=tk.W, pady=2)
-        
-        # API Key section
-        api_frame = ttk.LabelFrame(main_frame, text="USDA API Key", padding="10")
-        api_frame.pack(fill=tk.X, pady=(0, 20))
-        
-        api_info = ttk.Label(
-            api_frame,
-            text="You need a free API key from USDA FoodData Central:"
-        )
-        api_info.pack(anchor=tk.W, pady=(0, 5))
-        
-        api_button_frame = ttk.Frame(api_frame)
-        api_button_frame.pack(fill=tk.X, pady=(0, 10))
-        
-        ttk.Button(
-            api_button_frame,
-            text="🌐 Get Free API Key",
-            command=self.open_api_page
-        ).pack(side=tk.LEFT)
-        
-        api_entry_frame = ttk.Frame(api_frame)
-        api_entry_frame.pack(fill=tk.X)
-        
-        ttk.Label(api_entry_frame, text="Enter your API key:").pack(anchor=tk.W)
-        self.api_entry = ttk.Entry(api_entry_frame, textvariable=self.api_key, width=50, show="*")
-        self.api_entry.pack(fill=tk.X, pady=(5, 0))
-        
-        # Status section
-        self.status_frame = ttk.LabelFrame(main_frame, text="Status", padding="10")
-        self.status_frame.pack(fill=tk.X, pady=(0, 20))
-        
-        self.status_label = ttk.Label(self.status_frame, text="Ready to install")
-        self.status_label.pack(anchor=tk.W)
-        
-        # Buttons
-        button_frame = ttk.Frame(main_frame)
-        button_frame.pack(fill=tk.X, pady=(10, 0))
-        
-        self.install_button = ttk.Button(
-            button_frame,
-            text="🚀 Install USDA Tools",
-            command=self.start_installation
-        )
-        self.install_button.pack(side=tk.RIGHT, padx=(10, 0))
-        
-        ttk.Button(
-            button_frame,
-            text="❌ Cancel",
-            command=self.root.quit
-        ).pack(side=tk.RIGHT)
+class InstallerHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(HTML_CONTENT.encode('utf-8'))
+        elif self.path.startswith('/install'):
+            self.handle_install()
+        else:
+            self.send_response(404)
+            self.end_headers()
     
-    def open_api_page(self):
-        """Open USDA API registration page"""
-        webbrowser.open("https://fdc.nal.usda.gov/api-guide.html")
-    
-    def update_status(self, message):
-        """Update status message"""
-        self.status_label.config(text=message)
-        self.root.update()
-    
-    def start_installation(self):
-        """Start the installation process"""
-        api_key = self.api_key.get().strip()
+    def handle_install(self):
+        # Parse query parameters
+        query = urllib.parse.urlparse(self.path).query
+        params = urllib.parse.parse_qs(query)
+        api_key = params.get('api_key', [''])[0]
         
         if not api_key:
-            messagebox.showerror("Error", "Please enter your USDA API key")
+            self.send_json({'error': 'API key is required'})
             return
         
-        # Disable install button
-        self.install_button.config(state="disabled")
-        
         try:
-            # Step 1: Check Claude
-            self.update_status("Checking for Claude for Desktop...")
-            if not self.claude_config_dir.exists():
-                messagebox.showerror("Error", "Claude for Desktop not found. Please install it first.")
-                self.install_button.config(state="normal")
-                return
+            # Installation logic
+            install_dir = Path.home() / ".usda-api-mcp"
+            claude_config_dir = Path.home() / "Library/Application Support/Claude"
             
-            # Step 2: Test API key
-            self.update_status("Validating API key...")
-            if not self.validate_api_key(api_key):
-                messagebox.showerror("Error", "Invalid API key. Please check and try again.")
-                self.install_button.config(state="normal")
-                return
-            
-            # Step 3: Install
-            self.update_status("Installing...")
-            success = self.install_tools(api_key)
-            
-            if success:
-                self.update_status("Installation complete!")
-                messagebox.showinfo("Success!", 
-                    "🎉 Installation successful!\n\n"
-                    "Next steps:\n"
-                    "1. Restart Claude for Desktop completely\n"
-                    "2. Look for the tools icon (🔧) in Claude\n"
-                    "3. Try: 'What's the nutrition info for salmon?'"
-                )
-            else:
-                messagebox.showerror("Error", "Installation failed. Please try again.")
-            
-        except Exception as e:
-            messagebox.showerror("Error", f"Installation failed: {str(e)}")
-        
-        self.install_button.config(state="normal")
-    
-    def validate_api_key(self, api_key):
-        """Simple API key validation"""
-        try:
-            response = requests.get(
-                "https://api.nal.usda.gov/fdc/v1/foods/search",
-                params={"api_key": api_key, "query": "test"},
-                timeout=10
-            )
-            return response.status_code == 200
-        except:
-            return False
-    
-    def install_tools(self, api_key):
-        """Install the tools"""
-        try:
-            # Create installation directory
-            if self.install_dir.exists():
+            # Create install directory
+            if install_dir.exists():
                 import shutil
-                shutil.rmtree(self.install_dir)
-            self.install_dir.mkdir(parents=True)
+                shutil.rmtree(install_dir)
+            install_dir.mkdir(parents=True)
             
-            # Copy main.py from current directory
+            # Copy main.py if it exists
             main_py_source = Path(__file__).parent / "main.py"
             if main_py_source.exists():
                 import shutil
-                shutil.copy2(main_py_source, self.install_dir / "main.py")
+                shutil.copy2(main_py_source, install_dir / "main.py")
+            else:
+                # Create embedded main.py
+                with open(install_dir / "main.py", "w") as f:
+                    f.write(EMBEDDED_MAIN_PY)
             
             # Create pyproject.toml
             pyproject_content = '''[project]
@@ -216,113 +72,474 @@ dependencies = [
     "python-dotenv>=1.0.0"
 ]
 '''
-            with open(self.install_dir / "pyproject.toml", "w") as f:
+            with open(install_dir / "pyproject.toml", "w") as f:
                 f.write(pyproject_content)
             
             # Create .env file
-            with open(self.install_dir / ".env", "w") as f:
+            with open(install_dir / ".env", "w") as f:
                 f.write(f"USDA_API_KEY={api_key}\n")
             
-            # Install dependencies with uv
-            self.update_status("Installing dependencies...")
-            uv_path = self.get_uv_path()
+            # Try to install with uv
+            uv_paths = [
+                Path.home() / ".local/bin/uv",
+                Path("/usr/local/bin/uv"),
+                Path("/opt/homebrew/bin/uv")
+            ]
+            
+            uv_path = None
+            for path in uv_paths:
+                if path.exists():
+                    uv_path = str(path)
+                    break
+            
             if uv_path:
-                subprocess.run([uv_path, "sync"], cwd=self.install_dir, check=True)
+                subprocess.run([uv_path, "sync"], cwd=install_dir, check=True)
             
             # Configure Claude
-            self.update_status("Configuring Claude...")
-            self.configure_claude(uv_path or "python3", api_key)
+            config_file = claude_config_dir / "claude_desktop_config.json"
+            config = {}
+            if config_file.exists():
+                try:
+                    with open(config_file, "r") as f:
+                        config = json.load(f)
+                except:
+                    config = {}
             
-            return True
+            if "mcpServers" not in config:
+                config["mcpServers"] = {}
+            
+            if uv_path:
+                config["mcpServers"]["usda-api"] = {
+                    "command": uv_path,
+                    "args": [
+                        "--directory",
+                        str(install_dir),
+                        "run",
+                        "main.py"
+                    ],
+                    "env": {
+                        "USDA_API_KEY": api_key
+                    }
+                }
+            else:
+                config["mcpServers"]["usda-api"] = {
+                    "command": "python3",
+                    "args": [str(install_dir / "main.py")],
+                    "env": {
+                        "USDA_API_KEY": api_key
+                    }
+                }
+            
+            # Write config
+            config_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(config_file, "w") as f:
+                json.dump(config, f, indent=2)
+            
+            self.send_json({'success': True, 'message': 'Installation completed successfully!'})
+            
         except Exception as e:
-            print(f"Installation error: {e}")
-            return False
+            self.send_json({'error': str(e)})
     
-    def get_uv_path(self):
-        """Get uv path or install it"""
-        # Check common locations
-        paths = [
-            Path.home() / ".local/bin/uv",
-            Path("/usr/local/bin/uv"),
-            Path("/opt/homebrew/bin/uv")
-        ]
-        
-        for path in paths:
-            if path.exists():
-                return str(path)
-        
-        # Try to install uv
+    def send_json(self, data):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        self.wfile.write(json.dumps(data).encode('utf-8'))
+
+# Embedded main.py content
+EMBEDDED_MAIN_PY = '''#!/usr/bin/env python3
+"""
+USDA API MCP Server
+Provides access to USDA FoodData Central API through MCP
+"""
+
+import os
+import asyncio
+import httpx
+from mcp.server.fastmcp import FastMCP
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Initialize MCP server
+mcp = FastMCP("USDA API")
+
+async def make_usda_request(endpoint: str, params: dict = None) -> dict:
+    """Make a request to the USDA API with error handling"""
+    api_key = os.getenv("USDA_API_KEY")
+    if not api_key:
+        raise ValueError("USDA_API_KEY environment variable is required")
+    
+    base_url = "https://api.nal.usda.gov"
+    url = f"{base_url}/{endpoint}"
+    
+    if params is None:
+        params = {}
+    params["api_key"] = api_key
+    
+    async with httpx.AsyncClient() as client:
         try:
-            subprocess.run([
-                "curl", "-LsSf", "https://astral.sh/uv/install.sh"
-            ], capture_output=True, text=True, check=True, input="y\n")
+            response = await client.get(url, params=params, timeout=30.0)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            raise Exception(f"API request failed: {e.response.status_code} - {e.response.text}")
+        except httpx.TimeoutException:
+            raise Exception("API request timed out")
+        except Exception as e:
+            raise Exception(f"API request failed: {str(e)}")
+
+@mcp.tool()
+async def search_foods(query: str, page_size: int = 10, page_number: int = 1) -> str:
+    """Search for foods in the USDA database."""
+    try:
+        params = {
+            "query": query,
+            "pageSize": min(page_size, 200),
+            "pageNumber": page_number
+        }
+        
+        data = await make_usda_request("fdc/v1/foods/search", params)
+        
+        if not data.get("foods"):
+            return f"No foods found for query: {query}"
+        
+        result = f"Found {data.get('totalHits', 0)} foods for '{query}':\\n\\n"
+        
+        for i, food in enumerate(data["foods"][:page_size], 1):
+            fdc_id = food.get("fdcId", "N/A")
+            description = food.get("description", "No description")
+            brand_owner = food.get("brandOwner", "Generic")
+            data_type = food.get("dataType", "N/A")
             
-            uv_path = Path.home() / ".local/bin/uv"
-            if uv_path.exists():
-                return str(uv_path)
-        except:
-            pass
+            result += f"{i}. {description}\\n"
+            result += f"   FDC ID: {fdc_id} | Brand: {brand_owner} | Type: {data_type}\\n\\n"
         
-        return None
+        if data.get("totalHits", 0) > page_size:
+            result += f"Showing {page_size} of {data['totalHits']} results. Use page_number parameter for more."
+        
+        return result
+        
+    except Exception as e:
+        return f"Error searching foods: {str(e)}"
+
+if __name__ == "__main__":
+    mcp.run()
+'''
+
+# HTML content for the web installer
+HTML_CONTENT = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USDA Food Tools - Installer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .features {
+            text-align: left;
+            margin: 30px 0;
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .feature {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        
+        .input-group {
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .api-link {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
+        }
+        
+        .api-link a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .install-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 20px;
+        }
+        
+        .install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .install-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #f0fff4;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        
+        .status.loading {
+            background: #ebf8ff;
+            color: #2a4365;
+            border: 1px solid #90cdf4;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🍎</div>
+        <h1>USDA Food Tools</h1>
+        <p class="subtitle">Add powerful nutrition and food search tools to Claude for Desktop</p>
+        
+        <div class="features">
+            <div class="feature">🔍 Search 500,000+ foods from the USDA database</div>
+            <div class="feature">📊 Get detailed nutrition facts for any food</div>
+            <div class="feature">🧪 Analyze nutrients and compare foods</div>
+            <div class="feature">📋 Browse food categories and brands</div>
+        </div>
+        
+        <div class="input-group">
+            <label for="apiKey">USDA API Key:</label>
+            <input type="password" id="apiKey" placeholder="Enter your API key..." />
+            <div class="api-link">
+                <a href="https://fdc.nal.usda.gov/api-guide.html" target="_blank">Get a free API key here</a>
+            </div>
+        </div>
+        
+        <button class="install-btn" onclick="install()">
+            🚀 Install USDA Tools
+        </button>
+        
+        <div id="status" class="status"></div>
+    </div>
     
-    def configure_claude(self, python_cmd, api_key):
-        """Configure Claude for Desktop"""
-        config_file = self.claude_config_dir / "claude_desktop_config.json"
+    <script>
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.className = `status ${type}`;
+            status.innerHTML = message;
+            status.style.display = 'block';
+        }
         
-        # Read existing config
-        config = {}
-        if config_file.exists():
-            try:
-                with open(config_file, "r") as f:
-                    config = json.load(f)
-            except:
-                config = {}
-        
-        # Add our server
-        if "mcpServers" not in config:
-            config["mcpServers"] = {}
-        
-        if python_cmd.endswith("uv"):
-            config["mcpServers"]["usda-api"] = {
-                "command": python_cmd,
-                "args": [
-                    "--directory",
-                    str(self.install_dir),
-                    "run",
-                    "main.py"
-                ],
-                "env": {
-                    "USDA_API_KEY": api_key
-                }
+        function install() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const button = document.querySelector('.install-btn');
+            
+            if (!apiKey) {
+                showStatus('Please enter your USDA API key', 'error');
+                return;
             }
-        else:
-            config["mcpServers"]["usda-api"] = {
-                "command": python_cmd,
-                "args": [str(self.install_dir / "main.py")],
-                "env": {
-                    "USDA_API_KEY": api_key
-                }
-            }
+            
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner"></span> Installing...';
+            showStatus('Installing USDA Food Tools... This may take a moment.', 'loading');
+            
+            fetch(`/install?api_key=${encodeURIComponent(apiKey)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showStatus(`
+                            🎉 Installation successful!<br><br>
+                            <strong>Next steps:</strong><br>
+                            1. Restart Claude for Desktop completely<br>
+                            2. Look for the tools icon (🔧) in Claude<br>
+                            3. Try: "What's the nutrition info for salmon?"<br><br>
+                            Enjoy your new food tools!
+                        `, 'success');
+                        button.innerHTML = '✅ Installation Complete';
+                    } else {
+                        showStatus(`Installation failed: ${data.error}`, 'error');
+                        button.disabled = false;
+                        button.innerHTML = '🚀 Install USDA Tools';
+                    }
+                })
+                .catch(error => {
+                    showStatus(`Installation failed: ${error.message}`, 'error');
+                    button.disabled = false;
+                    button.innerHTML = '🚀 Install USDA Tools';
+                });
+        }
         
-        # Write config
-        config_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(config_file, "w") as f:
-            json.dump(config, f, indent=2)
-    
-    def run(self):
-        """Run the GUI"""
-        self.root.mainloop()
+        // Allow Enter key to trigger install
+        document.getElementById('apiKey').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                install();
+            }
+        });
+    </script>
+</body>
+</html>'''
 
 def main():
-    """Main entry point"""
-    print("Starting USDA Food Tools GUI Installer...")
+    """Start the web installer"""
+    port = 8765
     
-    if sys.platform != "darwin":
-        print("This installer is designed for macOS only.")
-        sys.exit(1)
+    print("🍎 USDA Food Tools - Web Installer")
+    print("=" * 40)
     
-    app = USDAInstallerGUI()
-    app.run()
+    # Kill any existing installer processes
+    print("🧹 Clearing any existing installers...")
+    try:
+        # Kill specifically gui_installer.py processes, but not ourselves
+        current_pid = os.getpid()
+        result = subprocess.run(['pgrep', '-f', 'gui_installer.py'], 
+                               capture_output=True, text=True)
+        if result.returncode == 0:
+            pids = result.stdout.strip().split('\n')
+            for pid in pids:
+                if pid and int(pid) != current_pid:
+                    subprocess.run(['kill', '-9', pid], capture_output=True)
+    except (subprocess.CalledProcessError, ValueError):
+        pass  # No existing processes found
+    
+    # Now try to start on our preferred port
+    try:
+        print(f"🚀 Starting installer server on port {port}...")
+        httpd = socketserver.TCPServer(("", port), InstallerHandler)
+    except OSError:
+        # If still can't bind, find any available port
+        for port_try in range(8765, 8775):
+            try:
+                httpd = socketserver.TCPServer(("", port_try), InstallerHandler)
+                port = port_try
+                print(f"🚀 Started on alternate port {port}...")
+                break
+            except OSError:
+                continue
+        else:
+            print("❌ Could not find an available port")
+            return
+    
+    # Start the HTTP server
+    with httpd:
+        # Open browser
+        url = f"http://localhost:{port}"
+        print(f"Opening installer in your browser: {url}")
+        
+        # Give the server a moment to start
+        def open_browser():
+            time.sleep(1)
+            webbrowser.open(url)
+        
+        threading.Thread(target=open_browser, daemon=True).start()
+        
+        print("\nPress Ctrl+C to stop the installer when done.")
+        
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\n✅ Installer stopped. Installation should be complete!")
 
 if __name__ == "__main__":
     main()

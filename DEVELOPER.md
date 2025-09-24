@@ -90,6 +90,19 @@ The server uses the FastMCP framework from the official MCP Python SDK:
 
 ### Creating Release Packages
 
+#### Option 1: Mac App Bundle (Recommended)
+1. **Build the GUI installer:**
+   ```bash
+   ./build_installer.sh
+   ```
+
+2. **Create distribution package:**
+   ```bash
+   cd dist
+   zip -r "USDA-Food-Tools-v1.0.zip" "USDA Food Tools Installer.app"
+   ```
+
+#### Option 2: Source Distribution
 1. **Prepare the distribution:**
    ```bash
    # Clean previous builds
@@ -97,8 +110,8 @@ The server uses the FastMCP framework from the official MCP Python SDK:
    mkdir dist/
    
    # Copy essential files
-   cp main.py pyproject.toml install.sh dist/
-   cp README.md USER_GUIDE.md DEVELOPER.md dist/
+   cp main.py pyproject.toml install.sh gui_installer.py dist/
+   cp README.md USER_GUIDE.md GUI_README.md DEVELOPER.md dist/
    ```
 
 2. **Create archive:**
@@ -132,13 +145,25 @@ The `install.sh` script provides:
 
 Before releasing:
 
-- [ ] Test installer on clean macOS system
-- [ ] Verify all tools work correctly
+**GUI Installer:**
+- [ ] Test Mac app on clean macOS system
+- [ ] Verify GUI installer handles all error cases
+- [ ] Test Python script version on different Python versions
+- [ ] Check app signing and security warnings
+
+**Command Line Installer:**
+- [ ] Test install.sh on clean macOS system
+- [ ] Verify script handles missing dependencies
+
+**General:**
+- [ ] Verify all tools work correctly in Claude
 - [ ] Test with different Claude configurations
-- [ ] Update version numbers in pyproject.toml
+- [ ] Update version numbers in pyproject.toml and setup files
 - [ ] Test with fresh USDA API key
 - [ ] Verify error handling for invalid API keys
 - [ ] Test uninstallation process
+- [ ] Update all README files
+- [ ] Test documentation links work correctly
 
 ## Code Standards
 

@@ -41,17 +41,39 @@ Now ask Claude things like:
 - "Find high-fiber breakfast foods"
 - "Show vitamin content of spinach"
 
+## Installation Options
+
+Choose what works best for you:
+
+### 🖱️ **GUI Installer (Easiest)**
+- **Mac App**: Download [`USDA Food Tools Installer.zip`](dist/USDA%20Food%20Tools%20Installer.zip)
+- **Python Script**: Download [`gui_installer.py`](gui_installer.py)
+- Extract and double-click - beautiful interface guides you through everything
+- Perfect for non-technical users
+
+### ⚡ **Command Line (Quick)**
+- Download: [`install.sh`](install.sh)
+- Run in Terminal: `./install.sh`
+- One command does everything automatically
+
 ## Documentation
 
-Choose what fits your needs:
-
-- 📖 **[User Guide](USER_GUIDE.md)** - Detailed installation help and examples
-- 🛠️ **[Developer Guide](DEVELOPER.md)** - Build, modify, and distribute this project
+- 🖱️ **[GUI Installer Guide](GUI_README.md)** - Point-and-click installation (Mac app & Python script)
+- 📖 **[User Guide](USER_GUIDE.md)** - Detailed help, examples, and troubleshooting  
+- 🛠️ **[Developer Guide](DEVELOPER.md)** - Build, modify, and distribute
 
 ## Need Help?
 
-**Not working?** Check the [User Guide](USER_GUIDE.md) troubleshooting section.
+**Installation issues?** Check the [GUI Installer Guide](GUI_README.md) or [User Guide](USER_GUIDE.md) troubleshooting sections.
 
 **Want to customize?** See the [Developer Guide](DEVELOPER.md) for building and modifying.
 
-**Questions about the API?** Visit: https://fdc.nal.usda.gov/api-guide.html
+**API questions?** Visit: https://fdc.nal.usda.gov/api-guide.html
+
+## Example Usage
+
+Once installed, try asking Claude:
+- *"Search for nutrition information about salmon"*
+- *"Compare the protein content of chicken breast vs tofu"*  
+- *"Find foods high in iron"*
+- *"Get detailed nutrition facts for avocados"*

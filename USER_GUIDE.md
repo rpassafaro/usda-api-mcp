@@ -14,23 +14,25 @@ After installation, you'll have **5 powerful tools** in Claude:
 
 ## Super Simple Installation
 
-### Step 1: Get Your API Key (Free!)
-1. Go to: https://fdc.nal.usda.gov/api-guide.html
-2. Click "Get Data API Key" 
-3. Fill out the simple form
-4. Save the API key they email you
+Choose your preferred method:
 
-### Step 2: Download & Run
-1. Download this file: [`install.sh`](./install.sh)
-2. Open Terminal (found in Applications > Utilities)
-3. Type: `cd Downloads` (or wherever you saved the file)
-4. Type: `chmod +x install.sh`
-5. Type: `./install.sh`
-6. Enter your API key when prompted
+### 🖱️ **Option 1: GUI Installer (Easiest)**
+1. **Get API Key**: Go to https://fdc.nal.usda.gov/api-guide.html and get your free key
+2. **Download**: Get [`USDA Food Tools Installer.zip`](dist/USDA%20Food%20Tools%20Installer.zip)
+3. **Install**: Extract and double-click the app
+4. **Follow prompts**: Beautiful interface guides you through everything
+5. **Restart Claude**: Quit and restart Claude for Desktop
 
-### Step 3: Restart Claude
-- Completely quit and restart Claude for Desktop
-- Look for the tools icon (🔧) in Claude
+### ⚡ **Option 2: Command Line (Quick)**
+1. **Get API Key**: Go to https://fdc.nal.usda.gov/api-guide.html and get your free key
+2. **Download**: Get [`install.sh`](./install.sh)
+3. **Run**: Open Terminal, navigate to the file, and run:
+   ```bash
+   chmod +x install.sh
+   ./install.sh
+   ```
+4. **Enter API key** when prompted
+5. **Restart Claude**: Quit and restart Claude for Desktop
 
 ## That's It! 🎉
 
@@ -56,18 +58,32 @@ Now you can ask Claude things like:
 
 ## Troubleshooting
 
+### Common Issues
+
 **Tools not showing in Claude?**
-- Make sure you completely restarted Claude for Desktop
+- Make sure you completely quit and restarted Claude for Desktop
 - Check that you entered your API key correctly during installation
+- Look for the tools/search icon (🔧) in Claude's interface
+
+**GUI Installer opens in Xcode instead of running?**
+- Use the Mac App version instead: [`USDA Food Tools Installer.zip`](dist/USDA%20Food%20Tools%20Installer.zip)
+- Extract the zip and double-click the `.app` file
 
 **Installation failed?**
-- Make sure you have an internet connection
-- Try running the installer again
-- Make sure your API key is correct
+- Ensure you have an internet connection
+- Verify your API key is correct at: https://fdc.nal.usda.gov/api-guide.html
+- Try the alternative installation method (GUI vs command line)
+- Check that Claude for Desktop is installed
 
-**Need help?**
-- Double-check your API key at: https://fdc.nal.usda.gov/api-guide.html
+**API key issues?**
+- Get a fresh key from: https://fdc.nal.usda.gov/api-guide.html
+- Make sure you're copying the entire key (no extra spaces)
+- The key should be a long string of letters and numbers
+
+**Commands not working?**
 - The USDA database only includes foods (not supplements or medications)
+- Try more specific food names: "chicken breast" instead of just "chicken"
+- Check that the tools are actually available in Claude's interface
 
 ## What's Installed
 

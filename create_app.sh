@@ -33,9 +33,9 @@ cp pyproject.toml "$RESOURCES_DIR/"
 
 # Create Info.plist
 cat > "${CONTENTS_DIR}/Info.plist" << EOF
-<?xml version="2.0.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 2.0.0//EN" "http://www.apple.com/DTDs/PropertyList-2.0.0.dtd">
-<plist version="2.0.0">
+<?xml version="2.1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 2.1.0//EN" "http://www.apple.com/DTDs/PropertyList-2.1.0.dtd">
+<plist version="2.1.0">
 <dict>
     <key>CFBundleExecutable</key>
     <string>${APP_NAME}</string>
@@ -46,9 +46,9 @@ cat > "${CONTENTS_DIR}/Info.plist" << EOF
     <key>CFBundleDisplayName</key>
     <string>${APP_NAME}</string>
     <key>CFBundleVersion</key>
-    <string>2.0.0</string>
+    <string>2.1.0</string>
     <key>CFBundleShortVersionString</key>
-    <string>2.0.0</string>
+    <string>2.1.0</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>

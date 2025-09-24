@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build a clean release with only distribution files
 
-VERSION=${1:-"1.1.0"}
+VERSION=${1:-"2.1.0"}
 RELEASE_DIR="release-v${VERSION}"
 
 echo "🚀 Building release v${VERSION}..."

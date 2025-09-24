@@ -44,7 +44,7 @@ git push origin v2.1.0
 ```markdown
 ## 🍎 USDA Food Tools for Claude
 
-Add powerful food and nutrition data to Claude for Desktop!
+Add powerful food and nutrition data to Claude for Desktop! 
 
 ### 🚀 Quick Install
 1. Download `USDA-Food-Tools-Installer.zip` below

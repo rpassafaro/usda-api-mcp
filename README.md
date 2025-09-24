@@ -55,24 +55,3 @@ Choose what fits your needs:
 **Want to customize?** See the [Developer Guide](DEVELOPER.md) for building and modifying.
 
 **Questions about the API?** Visit: https://fdc.nal.usda.gov/api-guide.html
-
-
-
-
-
-{
-  "mcpServers": {
-      "usda-api": {
-        "command": "/Users/robertpassafaro/.local/bin/uv",
-        "args": [
-          "--directory",
-          "/Users/robertpassafaro/usda-api-mcp",
-          "run",
-          "main.py"
-        ],
-        "env": {
-          "USDA_API_KEY": "HW8sZdy1qZVvVa2aiPAc6Dzk0mlSKX5qe9t2cXR0"
-        }
-      }
-  }
-}

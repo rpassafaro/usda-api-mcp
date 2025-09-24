@@ -1,0 +1,11 @@
+[project]
+name = "usda-api-mcp"
+version = "0.1.0"
+description = "MCP server for USDA API access"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.2.0",
+    "httpx>=0.25.0",
+    "python-dotenv>=1.0.0"
+]
